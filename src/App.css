@@ -2,6 +2,10 @@
   text-align: center;
 }
 
+* {
+  text-decoration: none !important;
+}
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -35,4 +39,45 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.login-page, .signup-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.page-name {
+  font-size: 160px;
+}
+
+.login-button {
+  margin-left: 12px;
+  margin-right: 12px;
+}
+
+.item-img {
+  width: 20vw;
+}
+
+.item-name {
+  float: left;
+  text-align: left;
+  margin-left: 5vw;
+  font-size: 1.5rem;
+  margin-top: 8px;
+}
+
+.item-price {
+  float: right;
+  text-align: right;
+  margin-right: 5vw;
+  font-size: 1.5rem;
+  margin-top: 8px;
+}
+
+.item-container {
+  margin-top: 36px;
+  margin-bottom: 36px;
 }

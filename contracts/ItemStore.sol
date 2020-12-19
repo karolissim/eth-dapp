@@ -6,6 +6,7 @@ contract ItemStore {
     uint public itemCount = 0;
     mapping(uint => Item) public items;
     mapping(address => uint[]) userItems;
+    mapping(string => Account) public accounts;
 
     struct Item {
         uint id;
@@ -15,6 +16,13 @@ contract ItemStore {
         string photoUrl;
         uint price;
         bool isAvailable;
+    }
+
+    struct Account {
+        string username;
+        string password;
+        string email;
+        address payable userAddress;
     }
 
     event ItemCreated(
@@ -34,9 +42,40 @@ contract ItemStore {
         string description,
         bool isAvailable
     );
+
+    event UserCreated(
+        string username;
+        string email;
+    )
     
     constructor() public {
         name = "THA BEST E-SHOP";
+    }
+
+    function createUser(
+        string memory _username,
+        string memory _password,
+        string memory _email,
+        address payable _address
+    ) public {
+        require(bytes(_username).length > 0);
+        require(bytes(_password).length > 0);
+        require(bytes(_email).length > 0);
+
+        accounts[_email] = Account(_username, _password, _email, _address);
+
+        emit UserCreated(_ussername, _email)
+    }
+
+    function verifyUser(
+        string memory _email,
+        string memory _password
+    ) public returns (bool) {
+        if(accounts[_email].password == _password) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     function createItem(
