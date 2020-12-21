@@ -8,7 +8,7 @@ class Navbar extends Component {
             <React.Fragment>
                 <div className="nav">
                     <div className="logo">
-                        <Link to='/home'>...</Link>
+                        <Link to='/shop'>BRANGU.LT</Link>
                     </div>
                     <div className="nav-links">
                         <div>
@@ -18,7 +18,7 @@ class Navbar extends Component {
                             <Link to="/shop">Shop</Link>
                         </div>
                         <div>
-                            <Link to="/home">Sign out</Link>
+                            <Link to="/" onClick={this.props.logout}>Sign out</Link>
                         </div>
                     </div>
                 </div>

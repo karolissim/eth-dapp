@@ -24,7 +24,8 @@ const SignupModal = (props) => {
                 <div className="signup-page">
                     <form onSubmit={(event) => {
                         event.preventDefault()
-                        window.alert(username.value + " " + password.value + " " + email.value)
+                        console.log(username.value + " " + password.value + " " + email.value)
+                        props.createUser(username.value, password.value, email.value)
                     }}>
                         <div class="form-group">
                             <input type="text" class="form-control" id="username" placeholder="Username" ref={(input) => {username = input}} required></input>
@@ -34,9 +35,6 @@ const SignupModal = (props) => {
                         </div>
                         <div class="form-group">
                             <input type="email" class="form-control" id="email" placeholder="E-mail" ref={(input) => {email = input}} required></input>
-                        </div>
-                        <div class="form-group">
-                            <input type="text" class="form-control" id="address" placeholder="E-mail" ref={(input) => {address = input}} required></input>
                         </div>
                         <button type="submit" class="btn btn-primary">Create account</button>
                     </form>

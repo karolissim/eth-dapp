@@ -4,9 +4,10 @@ contract ItemStore {
     string public name;
 
     uint public itemCount = 0;
+    uint public userCount = 0;
     mapping(uint => Item) public items;
     mapping(address => uint[]) userItems;
-    mapping(string => Account) public accounts;
+    mapping(string => Account) accounts;
 
     struct Item {
         uint id;
@@ -44,9 +45,9 @@ contract ItemStore {
     );
 
     event UserCreated(
-        string username;
-        string email;
-    )
+        string username,
+        string email
+    );
     
     constructor() public {
         name = "THA BEST E-SHOP";
@@ -55,27 +56,39 @@ contract ItemStore {
     function createUser(
         string memory _username,
         string memory _password,
-        string memory _email,
-        address payable _address
+        string memory _email
     ) public {
         require(bytes(_username).length > 0);
         require(bytes(_password).length > 0);
         require(bytes(_email).length > 0);
 
-        accounts[_email] = Account(_username, _password, _email, _address);
+        accounts[_email] = Account(_username, _password, _email, msg.sender);
+        userCount++;
 
-        emit UserCreated(_ussername, _email)
+        emit UserCreated(_username, _email);
     }
 
     function verifyUser(
         string memory _email,
         string memory _password
-    ) public returns (bool) {
-        if(accounts[_email].password == _password) {
+    ) public view returns (bool) {
+        string memory password = accounts[_email].password;
+        if(keccak256(abi.encodePacked(password)) == keccak256(abi.encodePacked(_password))) {
             return true;
         } else {
             return false;
         }
+    }
+
+    function signupUser(
+        string memory _email,
+        string memory _password
+    ) public view returns (string memory username, string memory email, address userAddress) { //, string memory email, address userAddress
+        bool doesExist = verifyUser(_email, _password);
+        if(doesExist) {
+            Account memory user = accounts[_email];
+            return (user.username, user.email, user.userAddress); //, user.email, user.userAddress
+        } 
     }
 
     function createItem(
@@ -170,7 +183,7 @@ contract ItemStore {
 
         items[_id] = item;
 
-        address(ownerAddress).transfer(msg.value);
+        address(ownerAddress).transfer(item.price);
 
         emit ItemSold(item.id, item.owner, item.name, item.description, item.isAvailable);
     }

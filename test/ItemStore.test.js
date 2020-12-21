@@ -116,10 +116,10 @@ contract('ItemStore', (accounts) => {
         oldBuyerBalance = await web3.eth.getBalance(accounts[1])
         oldBuyerBalance = new web3.utils.BN(oldBuyerBalance)
 
-        price = web3.utils.toWei('1', 'Wei')
+        price = web3.utils.toWei('5', 'Wei')
         price = new web3.utils.BN(price)
         
-        await itemStore.sellItem(firstItemId, {from: accounts[1], value: web3.utils.toWei('1', 'Wei')})
+        await itemStore.sellItem(firstItemId, {from: accounts[1], value: web3.utils.toWei('5', 'Wei')})
 
         newSellerBalance = await web3.eth.getBalance(accounts[0])
         newSellerBalance = new web3.utils.BN(newSellerBalance)
@@ -155,7 +155,7 @@ contract('ItemStore', (accounts) => {
       it('item owner changed', async () => {
         assert.equal(firstItemOwner, accounts[4], 'owner address is correct')
 
-        var soldItem = await itemStore.sellItem(firstItemId, {from: accounts[5], value: web3.utils.toWei('1', 'Wei')})
+        var soldItem = await itemStore.sellItem(firstItemId, {from: accounts[5], value: web3.utils.toWei('5', 'Wei')})
 
         var soldItemOwner = soldItem.logs[0].args.owner
 
@@ -172,5 +172,32 @@ contract('ItemStore', (accounts) => {
         })
       })
 
+    })
+
+    describe('user creation', async () => {
+      let user, userCount
+
+      before(async () => {
+        user = await itemStore.createUser("Karolis", "karolis", "karolis@gmail.com", {from: accounts[0]})
+        userCount = await itemStore.userCount()
+      })
+
+      it('create user', async () => {
+        const userData = user.logs[0].args
+        assert.equal(userData.username, "Karolis", 'user name is correct')
+        assert.equal(userData.email, "karolis@gmail.com", 'email is correct')
+        assert.equal(userCount, 1, 'user count is correct')
+      })
+
+      it('verify user exists', async () => {
+        var doesExist = await itemStore.verifyUser("karolis@gmail.com", "karolis")
+        assert.equal(doesExist, true, 'user exists')
+      })
+
+      it('get user data', async () => {
+        await itemStore.signupUser("karolis@gmail.com", "karolis").then((x) => {
+          console.log(x)
+        })
+      })
     })
 })

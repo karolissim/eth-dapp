@@ -1,19 +1,28 @@
-import React, { Component } from 'react';
-import './App.css';
+import React, { Component } from 'react'
+import './App.css'
 import Web3 from 'web3'
 import ItemStore from 'abis/contracts/ItemStore.json'
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-import LoginModal from './components/LoginModal';
-import SignupModal from './components/SignupModal';
-import Navbar from './components/Navbar';
+import LoginModal from './components/LoginModal'
+import SignupModal from './components/SignupModal'
+import Navbar from './components/Navbar'
+import Sell from './components/Sell'
+import Item from './components/Item'
 
 class App extends Component {
   constructor(props) {
     super(props)
+    this.createUser = this.createUser.bind(this)
+    this.login = this.login.bind(this)
+    this.createItem = this.createItem.bind(this)
+    this.buyItem = this.buyItem.bind(this)
     this.state = {
       loginModal: false,
       signupModal: false,
+      isVerified: false,
       account: '',
+      username: '',
+      email: '',
       loading: true,
       itemCount: 0,
       items: []
@@ -21,11 +30,20 @@ class App extends Component {
   }
 
   selectLoginModal = () => {
-    this.setState({ loginModal: !this.state.loginModal})
+    this.setState({ loginModal: !this.state.loginModal })
   }
 
   selectSignupModal = () => {
-    this.setState({ signupModal: !this.state.signupModal})
+    this.setState({ signupModal: !this.state.signupModal })
+  }
+
+  logoutUser = () => {
+    this.setState({
+      isVerified: false,
+      account: '',
+      username: '',
+      email: ''
+    })
   }
 
   async UNSAFE_componentWillMount() {
@@ -37,18 +55,21 @@ class App extends Component {
     const web3 = window.web3
     const accounts = await web3.eth.getAccounts()
     this.setState({ account: accounts[0] })
+    console.log(accounts)
     const networkId = await web3.eth.net.getId()
     const networkData = ItemStore.networks[networkId]
     if (networkData) {
       const itemStore = new web3.eth.Contract(ItemStore.abi, networkData.address)
-      this.setState({itemStore})
+      this.setState({ itemStore })
       const itemCount = await itemStore.methods.itemCount().call()
-      this.setState({items: []})
-      for(var i = 0; i < itemCount; i++) {
-        var item = await itemStore.methods.items(i).call()
-        this.setState({items: [...this.state.items, item]})
+      const userCount = await itemStore.methods.userCount().call()
+      this.setState({ items: [] })
+      for (var i = 1; i <= itemCount; i++) {
+        const item = await itemStore.methods.items(i).call()
+        this.setState({ items: [...this.state.items, item] })
       }
-      // window.alert(itemCount)
+      console.log(userCount)
+      console.log(itemCount)
     } else {
       window.alert('Marketplace contract not deployed to detected network.')
     }
@@ -67,9 +88,52 @@ class App extends Component {
     }
   }
 
+  createUser(username, password, email) {
+    this.state.itemStore.methods
+      .createUser(username, password, email)
+      .send({ from: this.state.account })
+      .on('confirmation', async function (_confirmationNumber, receipt) {
+        await this.loadContract()
+      })
+  }
+
+  login(email, password) {
+    this.state.itemStore.methods.signupUser(email, password).call().then((res) => {
+      this.setState({
+        username: res.username,
+        email: res.email,
+        isVerified: true
+      })
+    })
+  }
+
+  createItem(name, description, photoUrl, price) {
+    this.state.itemStore.methods
+      .createItem(name, description, photoUrl, price)
+      .send({ from: this.state.account })
+      .on('confirmation', async (_confirmationNumber, _receipt) => {
+        await this.loadContract()
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+  }
+
+  buyItem(id) {
+    this.state.itemStore.methods
+      .sellItem(id)
+      .send({ from: this.state.account })
+      .once('receipt', async (_receipt) => {
+        await this.loadContract()
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+  }
+
   render() {
     var columns = []
-    for(var i = 0; i < 8; i++) {
+    for (var i = 0; i < 8; i++) {
       columns.push(
         <div class="col">
           <div className="item-container">
@@ -79,7 +143,7 @@ class App extends Component {
             <h2 className="item-name">iPhone 8</h2>
             <h2 className="item-price">100 ETH</h2>
           </div>
-          
+
         </div>
       )
     }
@@ -87,7 +151,7 @@ class App extends Component {
       <Router>
         <div className="App">
           <Switch>
-            <Route path="/">
+            <Route exact path="/">
               <div className="login-page">
                 <div>
                   <h1 className="page-name">BRANGU.LT</h1>
@@ -96,17 +160,39 @@ class App extends Component {
                 </div>
                 <LoginModal
                   displayLoginModal={this.state.loginModal}
-                  closeLoginModal={this.selectLoginModal}/>
+                  closeLoginModal={this.selectLoginModal}
+                  login={this.login}
+                  isVerified={this.state.isVerified} />
                 <SignupModal
                   displaySignupModal={this.state.signupModal}
-                  closeSignupModal={this.selectSignupModal}/>
+                  closeSignupModal={this.selectSignupModal}
+                  createUser={this.createUser} />
               </div>
             </Route>
             <Route path="/shop">
-              <Navbar />
-              <div class="container">
-                <div class="row">{ columns }</div>
+              <Navbar
+                logout={this.logoutUser} />
+              <div className="spacer-large"></div>
+              <div className="container">
+                <div className="row">
+                  {this.state.items.map((item, _id) => {
+                    console.log(item);
+                    return (
+                      <React.Fragment>
+                        <Item
+                          item={item}
+                          buyItem={this.buyItem} />
+                      </React.Fragment>
+                    )
+                  })}
+                </div>
               </div>
+            </Route>
+            <Route path="/sell">
+              <Navbar
+                logout={this.logoutUser} />
+              <Sell
+                createItem={this.createItem} />
             </Route>
           </Switch>
         </div>
