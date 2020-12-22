@@ -23,7 +23,7 @@ const Item = (props) => {
                                     props.buyItem(event.target.name)
                                 }}>BUY ITEM</button>
                         </div>
-                        : <p>Item unavailable</p>
+                        : <p>Item already sold</p>
                     }
                 </div>
             </div>

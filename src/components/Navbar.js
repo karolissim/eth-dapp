@@ -12,6 +12,9 @@ class Navbar extends Component {
                     </div>
                     <div className="nav-links">
                         <div>
+                            <Link to="/items">Your items</Link>
+                        </div>
+                        <div>
                             <Link to='/sell'>Sell</Link>
                         </div>
                         <div>

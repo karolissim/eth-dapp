@@ -25,7 +25,8 @@ class App extends Component {
       email: '',
       loading: true,
       itemCount: 0,
-      items: []
+      items: [],
+      userItems: []
     }
   }
 
@@ -55,7 +56,7 @@ class App extends Component {
     const web3 = window.web3
     const accounts = await web3.eth.getAccounts()
     this.setState({ account: accounts[0] })
-    console.log(accounts)
+    console.log(this.state.account)
     const networkId = await web3.eth.net.getId()
     const networkData = ItemStore.networks[networkId]
     if (networkData) {
@@ -66,10 +67,16 @@ class App extends Component {
       this.setState({ items: [] })
       for (var i = 1; i <= itemCount; i++) {
         const item = await itemStore.methods.items(i).call()
-        this.setState({ items: [...this.state.items, item] })
+        if(item.owner === this.state.account) {
+          this.setState({ items: [...this.state.items, item], userItems: [...this.state.userItems, item] })
+        } else {
+          this.setState({ items: [...this.state.items, item] })
+        }
       }
-      console.log(userCount)
-      console.log(itemCount)
+      console.log("all items: " + JSON.stringify(this.state.items))
+      console.log("all items: " + JSON.stringify(this.state.userItems))
+      console.log("user count: " + userCount)
+      console.log("item count: " + itemCount)
     } else {
       window.alert('Marketplace contract not deployed to detected network.')
     }
@@ -92,7 +99,7 @@ class App extends Component {
     this.state.itemStore.methods
       .createUser(username, password, email)
       .send({ from: this.state.account })
-      .on('confirmation', async function (_confirmationNumber, receipt) {
+      .on('confirmation', async function (_confirmationNumber, _receipt) {
         await this.loadContract()
       })
   }
@@ -176,7 +183,24 @@ class App extends Component {
               <div className="container">
                 <div className="row">
                   {this.state.items.map((item, _id) => {
-                    console.log(item);
+                    return (
+                      <React.Fragment>
+                        <Item
+                          item={item}
+                          buyItem={this.buyItem} />
+                      </React.Fragment>
+                    )
+                  })}
+                </div>
+              </div>
+            </Route>
+            <Route path="/items">
+              <Navbar
+                logout={this.logoutUser} />
+              <div className="spacer-large"></div>
+              <div className="container">
+                <div className="row">
+                  {this.state.userItems.map((item, _id) => {
                     return (
                       <React.Fragment>
                         <Item

@@ -3,8 +3,8 @@ import react, { Component } from 'react'
 class Sell extends Component {
     render() {
         return (
-            <div id="content" className="forms">
-                <h1 className="form-intro">Ask strangers to feed your cat</h1>
+            <div id="content" className="forms sell-form">
+                <h1 className="form-intro sell-text">Sell your item for free</h1>
                 <form onSubmit={(event) => {
                     event.preventDefault()
                     const title = this.title.value
@@ -14,7 +14,7 @@ class Sell extends Component {
                     console.log(title + " " + desc + " " + photo + " " + price)
                     this.props.createItem(title, desc, photo, price)
                 }}>
-                    <div className="form-group">
+                    <div className="form-group sell-form-text">
                         <input
                             id="title"
                             className="form-control"
@@ -24,7 +24,7 @@ class Sell extends Component {
                             placeholder="Title"
                             required />
                     </div>
-                    <div className="form-group">
+                    <div className="form-group sell-form-text">
                         <input
                             id="description"
                             className="form-control"
@@ -34,7 +34,7 @@ class Sell extends Component {
                             placeholder="Description"
                             required />
                     </div>
-                    <div className="form-group">
+                    <div className="form-group sell-form-text">
                         <input
                             id="photo"
                             className="form-control"
@@ -44,7 +44,7 @@ class Sell extends Component {
                             placeholder="Photo url"
                             required />
                     </div>
-                    <div className="form-group">
+                    <div className="form-group sell-form-text">
                         <input
                             id="price"
                             className="form-control"

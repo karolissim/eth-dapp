@@ -6,7 +6,7 @@ contract ItemStore {
     uint public itemCount = 0;
     uint public userCount = 0;
     mapping(uint => Item) public items;
-    mapping(address => uint[]) userItems;
+    mapping(address => uint[]) public userItems;
     mapping(string => Account) accounts;
 
     struct Item {
