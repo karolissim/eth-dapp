@@ -74,7 +74,7 @@ class App extends Component {
         }
       }
       console.log("all items: " + JSON.stringify(this.state.items))
-      console.log("all items: " + JSON.stringify(this.state.userItems))
+      console.log("all user items: " + JSON.stringify(this.state.userItems))
       console.log("user count: " + userCount)
       console.log("item count: " + itemCount)
     } else {
